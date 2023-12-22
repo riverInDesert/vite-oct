@@ -1,6 +1,5 @@
 <script setup>
     import TabBar from '../components/TabBar.vue';
-    fetch()
 </script>
 <template>
     <div class="container">
