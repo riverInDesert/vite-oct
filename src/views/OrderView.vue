@@ -84,7 +84,7 @@
                 store.$patch((state)=> {
                     delete state.shoppingList[shoppingRecord.currentShopId].list;
                 })
-                goBack();
+                router.push('/orderRecord');
             }
         })
         .catch(error=>console.log(error))

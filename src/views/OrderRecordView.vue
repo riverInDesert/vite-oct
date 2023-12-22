@@ -1,5 +1,28 @@
 <script setup>
+    import {ref} from 'vue'
     import TabBar from '../components/TabBar.vue';
+    import splicer from '../assets/utilities/urlSplicer';
+    import {plus, multiply} from '../assets/utilities/myArithmetic'
+
+    let orderRecords= ref([])
+    fetch(splicer('/api/order'))
+    .then(res=> res.json())
+    .then(data=> {
+        if(data?.errno=== 0) {
+            data.data.forEach(element => {
+                element.totalAmount= 0
+                element.totalPrice= 0
+                element.products.forEach(e=> {
+                    element.totalAmount= plus(element.totalAmount, e.product.sales)
+                    element.totalPrice= plus(element.totalPrice, multiply(e.product.sales, e.product.price))
+                })
+                orderRecords.value.push(element)
+            });
+            console.log(data)
+        }
+    })
+    .catch(e=> console.log(e))
+
 </script>
 <template>
     <div class="container">
@@ -7,19 +30,20 @@
             <p>我的订单</p>
         </div>
         <ul class="main-list">
-            <li>
+            <li v-for="(item, index) in orderRecords" :key="index">
                 <div>
-                    <p>沃尔玛</p>
-                    <p>已取消</p>
+                    <p>{{item.shopName}}</p>
+                    <p>{{item.isCanceled?'已取消':''}}</p>
                 </div>
                 <div>
                     <ul>
-                        <li></li>
-                        <li></li>
+                        <li v-for="(itemIn, indexIn) in item.products" :key="indexIn">
+                        <img :src="itemIn.product.img">
+                        </li>
                     </ul>
                     <div>
-                        <p>￥66.69</p>
-                        <p>共5件</p>
+                        <p>￥{{item.totalPrice}}</p>
+                        <p>共{{item.totalAmount}}件</p>
                     </div>
                 </div>
             </li>
@@ -76,10 +100,11 @@
                 ul {
                     display: flex;
                     li {
-                        width: 40px;
-                        height: 40px;
-                        margin-right: .75rem;
-                        background-color: #1fa4fc;
+                        img{
+                            width: 40px;
+                            height: 40px;
+                            margin-right: .75rem;
+                        }
                     }
                 }
                 div {
